@@ -1,4 +1,16 @@
 services:
+  nginx:
+    image:  openresty/openresty:alpine
+    container_name: api-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - user-service
+    restart: always
+
   auth-service:
     build:
       context: ./auth-service
@@ -8,7 +20,7 @@ services:
       - "8001:8001"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@auth-postgres:5432/auth_db
-      JWT_SECRET: supersecretkey   # 🔐 SAME SECRET EVERYWHERE
+      JWT_SECRET: supersecretkey
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -40,11 +52,10 @@ services:
     ports:
       - "8002:8002"
     environment:
-      JWT_SECRET: supersecretkey   # 🔐 MUST MATCH auth-service
+      JWT_SECRET: supersecretkey
     depends_on:
       - auth-service
     restart: always
 
 volumes:
   pgdata:
-  
