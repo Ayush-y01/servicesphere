@@ -62,3 +62,15 @@ async def admin_dashboard(
         "message":"welcome Admin",
         "user_id": user["user_id"]
     }
+
+@router.get("/verify-token")
+def verify_token(current_user = Depends(get_current_user)):
+    """
+    Used by API Gateway (NGINX)
+    If token is valid → 200
+    If invalid → 401 (handled inside get_current_user)
+    """
+    return{
+        "status":"valid",
+        "user": current_user
+    }
