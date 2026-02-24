@@ -13,18 +13,18 @@ def get_current_user(
 ):
     token = credentials.credentials
 
-    response = requests.get(
-        AUTH_VERIFY_URL,
-        headers={"Authorization": f"Bearer {token}"}
-    )
-
-    if response.status_code != 200:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.JWT_ALGORITHM]
+        )
+        return payload
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token"
         )
-
-    return response.json()
 
 
 def require_roles(allowed_roles: list[str]):
@@ -32,7 +32,7 @@ def require_roles(allowed_roles: list[str]):
         if current_user["role"] not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You Do Not have permission"
+                detail="Permission Denied"
             )
         return current_user
     return role_checker

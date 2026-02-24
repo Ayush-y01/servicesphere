@@ -3,3 +3,4 @@ uvicorn
 python-jose
 python-dotenv
 pydantic-settings
+requests==2.31.0
