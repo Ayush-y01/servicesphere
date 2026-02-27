@@ -74,3 +74,14 @@ def verify_token(current_user = Depends(get_current_user)):
         "status":"valid",
         "user": current_user
     }
+
+@router.post("/logout")
+def logout(
+    current_user = Depends(get_current_user),
+    db: session = Depends(get_db)
+):
+    user = db.query(user).filter(user.id == current_user["sub"]).first()
+    user.token_version += 1
+    db.commit()
+
+    return {"message": "Logged out Successfully"}
